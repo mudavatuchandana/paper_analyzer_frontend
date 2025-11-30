@@ -27,6 +27,8 @@ const Dashboard = () => {
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
     if (!localStorage.getItem("token")) {
       navigate("/login");
@@ -41,15 +43,11 @@ const Dashboard = () => {
     formData.append("edit_mode", editMode);
 
     try {
-      const res = await axios.post(
-        "http://localhost:3001/api/upload",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const res = await axios.post(`${API_URL}/api/upload`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
       setData(res.data);
       setMessages([

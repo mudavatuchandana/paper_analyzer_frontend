@@ -31,6 +31,8 @@ const Signup = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_BASE_URL;
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError("");
@@ -50,7 +52,7 @@ const Signup = () => {
     }
 
     try {
-      await axios.post("http://localhost:3001/api/signup", {
+      await axios.post(`${API_URL}/api/signup`, {
         email,
         firstName,
         lastName,

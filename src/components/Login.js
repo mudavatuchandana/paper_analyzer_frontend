@@ -24,13 +24,15 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_BASE_URL;
+
   const handleLogin = async () => {
     if (!email || !password) {
       return setError("Email and password are required.");
     }
 
     try {
-      const res = await axios.post("http://localhost:3001/api/login", {
+      const res = await axios.post(`${API_URL}/api/login`, {
         email,
         password,
       });
