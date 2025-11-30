@@ -23,7 +23,6 @@ const Dashboard = () => {
   const [data, setData] = useState(null); // holds session_id, text, corrections, figures
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const ws = useRef(null);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
