@@ -59,43 +59,60 @@ const Dashboard = () => {
   };
 
   // WebSocket connection
+  // WebSocket connection
+  // Remove these lines completely:
+  // const ws = useRef(null);
+  // The entire useEffect with WebSocket
+  // ws.current?.close() etc.
+
+  // Replace with this simple version:
   useEffect(() => {
-    if (!data?.session_id) {
-      if (ws.current) ws.current.close();
-      return;
-    }
-
-    const url = window.location.hostname.includes("localhost")
-      ? `ws://localhost:8000/ws/${data.session_id}`
-      : `wss://${window.location.host}/ws/${data.session_id}`;
-
-    ws.current = new WebSocket(url);
-
-    ws.current.onopen = () => console.log("Connected to AI");
-    ws.current.onmessage = (e) => {
-      setMessages((prev) => [...prev, { text: e.data, sender: "ai" }]);
-    };
-    ws.current.onerror = () => {
-      setMessages((prev) => [
-        ...prev,
-        { text: "Connection error", sender: "ai" },
+    if (data?.session_id) {
+      setMessages([
+        { text: "I've analyzed your paper. Ask me anything!", sender: "ai" },
       ]);
-    };
-
-    return () => ws.current?.close();
+    }
   }, [data?.session_id]);
 
-  const sendMessage = () => {
-    if (
-      !input.trim() ||
-      !ws.current ||
-      ws.current.readyState !== WebSocket.OPEN
-    )
-      return;
+  const sendMessage = async () => {
+    if (!input.trim() || !data?.session_id) return;
 
-    setMessages((prev) => [...prev, { text: input, sender: "user" }]);
-    ws.current.send(input);
+    const userMsg = input.trim();
+    setMessages((prev) => [...prev, { text: userMsg, sender: "user" }]);
     setInput("");
+
+    // Show typing indicator
+    setMessages((prev) => [
+      ...prev,
+      { text: "Thinking...", sender: "ai", typing: true },
+    ]);
+
+    try {
+      const res = await axios.post(
+        `${API_URL}/api/chat`,
+        { session_id: data.session_id, message: userMsg },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      setMessages((prev) =>
+        prev
+          .filter((m) => !m.typing)
+          .concat({ text: res.data.answer, sender: "ai" })
+      );
+    } catch (err) {
+      setMessages((prev) =>
+        prev
+          .filter((m) => !m.typing)
+          .concat({
+            text: "Sorry, I couldn't respond. Try again.",
+            sender: "ai",
+          })
+      );
+    }
   };
 
   const handleLogout = () => {
